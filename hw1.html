@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<style>
+
+
+</style>
+</head>
+
+<body> 
+<h1> HW1 </h1>
+<button id='power'>Power</button>
+
+<div id='bkgd'>
+<img src="https://cf.shopee.tw/file/4e0f5fe79e5e364b5bad02b39cf8051f" style="position:absolute;top:0vw;left:0vw;width:50vw;z-index:-1">
+</div>
+
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<script>
+var powerOn = true;
+
+$('#power').click (function() {
+  powerOn = !powerOn;
+  
+  if (powerOn === true) {  // false--> true
+     lamps.forEach (function(item) {item.startBlink();});
+  }
+});
+
+class Lamp {
+
+  constructor(name) {
+    this.name = name + Lamp.id++;
+    this.myStatus = false;
+    
+    let el = document.createElement ('div');
+    el.id = this.name;
+    let bkgd = document.getElementById('bkgd');
+    bkgd.appendChild(el);
+    this.hue = Math.random()*360;
+
+    // styles
+    el.setAttribute ("style", `background-color: hsl(${this.hue}, 90%, 50%); width:20px; height:20px; border-radius:10px; margin:0 auto;`);
+    el.style.position = "absolute";
+  }
+
+  toggle() {
+    this.myStatus = ! this.myStatus;
+    this.lighton = Math.random()*500 + 100;
+    
+    if (powerOn) {
+    	//setTimeout (()=>{this.toggle();}, `${this.lighton}`);
+      setTimeout (()=>{this.toggle();}, 500);
+    }
+    
+    if (this.myStatus === true) {
+      $('#'+this.name).css('backgroundColor', `hsl(${this.hue},90%,50%)`);
+    } else {
+      $('#'+this.name).css('backgroundColor', `hsl(0,0%,25%)`);
+    }
+  }
+
+  startBlink() {
+    var that = this;
+    this.light = Math.random()*500;
+/*   
+    setInterval(function() {
+      that.toggle();
+    }, 500);
+*/
+		//setTimeout (()=>{ this.toggle(); }, 0);
+  	setTimeout (()=>{ this.toggle(); }, `${this.light}`);
+     
+    //setInterval (that.toggle, 500);   // somehow, it does not work
+  }
+  
+  
+}
+
+
+Lamp.id = 0; // class variable
+lamps = [];
+
+for (let i = 0; i < 18; i++) {
+   let ll = new Lamp ('light');
+   lamps.push (ll);
+}
+
+lamps.forEach ( function(ll) {ll.startBlink();} );
+$('#light0').css({"top":"5vw","left":"23vw"});
+$('#light1').css({"top":"10vw","left":"29vw"});
+$('#light2').css({"top":"15vw","left":"31vw"});
+$('#light3').css({"top":"20vw","left":"27vw"});
+$('#light4').css({"top":"25vw","left":"15vw"});
+$('#light5').css({"top":"30vw","left":"20vw"});
+$('#light6').css({"top":"35vw","left":"13vw"});
+$('#light7').css({"top":"40vw","left":"17vw"});
+$('#light8').css({"top":"42vw","left":"36vw"});
+//$('#light9').css({"top":"50vw","left":"35vw"});
+$('#light9').css({"top":"13vw","left":"22vw"});
+$('#light10').css({"top":"11vw","left":"18vw"});
+$('#light11').css({"top":"17vw","left":"18vw"});
+$('#light12').css({"top":"26vw","left":"34vw"});
+$('#light13').css({"top":"27vw","left":"24vw"});
+$('#light14').css({"top":"32vw","left":"33vw"});
+$('#light15').css({"top":"38vw","left":"24vw"});
+$('#light16').css({"top":"41vw","left":"29vw"});
+$('#light17').css({"top":"43vw","left":"12vw"});
+//$('#light19').css({"top":"50vw","left":"10vw"});
+
+</script>
+</body>
+
+</html>
