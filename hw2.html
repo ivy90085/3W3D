@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <script language="JavaScript" type="text/javascript">
+      function changesize() {
+        window.resizeTo(1000, 1000); //指定預開啟的寬度與高度
+      }
+      window.onload = changesize;
+      window.onresize = changesize;
+
+    </script>
+    <style>
+
+
+    </style>
+  </head>
+
+
+  <body>
+    <h1>HW2</h1>
+    <hr>
+    <div style="width:1000; height:600">
+      <div style="float:left; width:450; height:600">
+        <div style="background:pink; width:400px; height:285px">
+          <font size="6">
+            <p style="position:relative; left:5px">
+              V
+            </p>
+            <hr>
+            <p style="position:relative; left:5px; top:-15px">
+              x
+              <input type='text' id='Vx' value='0' size='6'>
+              <br><br> y
+              <input type='text' id='Vy' value='0' size='6'>
+              <br><br> z
+              <input type='text' id='Vz' value='0' size='6'>
+            </p>
+          </font>
+        </div>
+        <div style="background:pink; width:400px; height:285px">
+          <font size="6">
+            <p style="position:relative; left:5px">
+              W
+            </p>
+            <hr>
+            <p style="position:relative; left:5px; top:-15px">
+              x
+              <input type='text' id='Wx' value='0' size='6'>
+              <br><br> y
+              <input type='text' id='Wy' value='0' size='6'>
+              <br><br> z
+              <input type='text' id='Wz' value='0' size='6'>
+            </p>
+          </font>
+        </div>
+      </div>
+
+
+      <div style="float:right; width:550; height:700">
+        <div style="background:pink; width:525px; height:600px">
+          <font size="6">
+            <p style="position:relative; left:5px">
+
+              inner product
+            </p>
+            <hr>
+            <p style="position:relative; left:5px">
+              v·w
+              <input type='text' id='VW' value='0' size='6'>
+              <br><br><br><br>
+              v×w (vector product)
+            </p>
+            <hr>
+            <p style="position:relative; left:5px">
+              x
+              <input type='text' id='VWx' value='0' size='6'>
+              <br><br> y
+              <input type='text' id='VWy' value='0' size='6'>
+              <br><br> z
+              <input type='text' id='VWz' value='0' size='6'>
+              <br><button id='bpp'> count </button>
+            </p>
+          </font>
+        </div>
+      </div>
+    </div>
+
+    <!------------------------------------------------------------------->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $('#bpp').click(function() {
+          var v = new THREE.Vector3(parseInt($('#Vx').val()), parseInt($('#Vy').val()), parseInt($('#Vz').val()));
+          var w = new THREE.Vector3(parseInt($('#Wx').val()), parseInt($('#Wy').val()), parseInt($('#Wz').val()));          
+          var vw = w.clone().dot(v);
+          var vxw = v.clone().crossVectors(v,w);
+          $("#VW").val(vw);
+          $("#VWx").val(vxw.x);
+          $("#VWy").val(vxw.y);
+          $("#VWz").val(vxw.z);
+          
+        });
+      });
+
+    </script>
+  </body>
+
+</html>
