@@ -3,15 +3,12 @@
 <html>
 
   <head>
-    <div id="info">HW3</div>
+    HW3
+    <a href="https://i.imgur.com/8ZuwBme.jpg">image</a>
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 
-
-
   </head>
-
-
   <body>
     <!------------------------------------------------------------------->
     <style>
@@ -32,19 +29,20 @@
 
     </style>
     <div id='mydiv'>
-      <button id='toggle'>Toggle</button>
+      <button id='toggle'>Angle</button>
     </div>
-    
+
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script>
-   var eyecamera = true;
-    $('#toggle').click(function() {
-      eyecamera =! eyecamera;
-      if (eyecamera === false) {  // false--> true
-     animate();
-  }
-      
-    });
+      var eyecamera = true;
+      $('#toggle').click(function() {
+        eyecamera = !eyecamera;
+        if (eyecamera === false) { // false--> true
+          animate();
+        }
+
+      });
+
     </script>
     <script>
       var camera, scene, renderer;
@@ -54,26 +52,40 @@
       animate();
 
       function init() {
+        /*
+                scene = new THREE.Scene();
 
-        scene = new THREE.Scene();
-/*
-        renderer = new THREE.WebGLRenderer();
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setClearColor(0x888888);
+                document.body.appendChild(renderer.domElement);*/
+
+        //camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        //camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 ); 
+        //camera.position.z = -100; // camera at (0,0,500)
+        //camera.position.set(-500, 170, 0);
+        //camera.lookAt(painting1.position);
+        //let controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+				renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x888888);
+        
+        
         document.body.appendChild(renderer.domElement);
 
-        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.z = 500;*/ // camera at (0,0,500)
-        //camera.position.set(320, 170, 120);
-        //let controls = new THREE.OrbitControls(camera, renderer.domElement);
+        scene = new THREE.Scene();
+
+        eyeCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        eyeCamera2 = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        Camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+        Camera.position.z = 500; // camera at (0,0,500)
+        let controls = new THREE.OrbitControls(eyeCamera, renderer.domElement);
+
+        //let controls = new OrbitControls(eyeCamera, renderer.domElement);
 
         ////////////////////////////////////////////////////////
 
-
-        
-        
-        eyeCamera2 = new THREE.PerspectiveCamera(120, window.innerWidth / window.innerHeight, 1, 1000);
-        
 
         //var gridXZ = new THREE.GridHelper(600, 30, 'red', 'white');
         //scene.add(gridXZ);
@@ -82,6 +94,9 @@
           map: wood
         });
         var gridXZ = new THREE.Mesh(new THREE.BoxGeometry(1880, 1, 760), mat1);
+        var ceiling = new THREE.Mesh(new THREE.BoxGeometry(1880, 1, 760));
+        ceiling.position.set(0, 300, 0);
+        //scene.add(gridXZ,ceiling);
         scene.add(gridXZ);
 
         var wall1 = new THREE.Mesh(new THREE.BoxGeometry(10, 300, 360), new THREE.MeshLambertMaterial());
@@ -97,21 +112,16 @@
         wall4.position.set(40, 150, 0);
 
         var wall5 = new THREE.Mesh(new THREE.BoxGeometry(10, 300, 760), new THREE.MeshLambertMaterial());
-        wall5.position.set(-940, 150, 0);//
+        wall5.position.set(-940, 150, 0); //
 
         var wall6 = new THREE.Mesh(new THREE.BoxGeometry(10, 300, 240), new THREE.MeshLambertMaterial());
         wall6.position.set(-360, 150, 260);
-        /*
-                var drawing = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshBasicMaterial({
-                  color: "pink"
-                }));
-                
-                drawing.position.set(434, 170, 120);
-                drawing.rotation.y = -Math.PI / 2;
-                scene.add(wall1, wall2, wall3, wall4, wall5, wall6, drawing);
-                
-          */
-        scene.add(wall1, wall2, wall3, wall4, wall5, wall6);
+
+        var wall7 = new THREE.Mesh(new THREE.BoxGeometry(1880, 300, 10), new THREE.MeshLambertMaterial());
+        wall7.position.set(0, 150, -380);
+       
+        scene.add(wall1, wall2, wall3, wall4, wall5, wall6, wall7);
+        scene.add(ceiling);
 
         const spotLight = new THREE.SpotLight(0xffffff, 1, 0, Math.PI / 6, 0.5);
         //spotLight.position.set(0, 80, 80);
@@ -125,16 +135,16 @@
 
         //painting1
         let capMap = loader.load('https://i.imgur.com/zbHW8mL.jpg');
-        var painting1 = new THREE.Mesh(new THREE.PlaneGeometry(43.5, 60), new THREE.MeshBasicMaterial({
+        var painting1 = new THREE.Mesh(new THREE.PlaneGeometry(87, 120), new THREE.MeshBasicMaterial({
           map: capMap
         }));
         painting1.position.set(434, 170, 120);
         painting1.rotation.y = -Math.PI / 2;
         scene.add(painting1);
-        
+
         //painting2
         let capMap2 = loader.load('https://i.imgur.com/oQ0LOcs.jpg');
-        var painting2 = new THREE.Mesh(new THREE.PlaneGeometry(65, 67.6), new THREE.MeshBasicMaterial({
+        var painting2 = new THREE.Mesh(new THREE.PlaneGeometry(130, 135.2), new THREE.MeshBasicMaterial({
           map: capMap2
         }));
         painting2.position.set(-930, 170, 120);
@@ -146,17 +156,17 @@
 
         // frame ...
         let frameMap = loader.load('https://i.imgur.com/Je86MDa.png');
-        var frame = new THREE.Mesh(new THREE.PlaneGeometry(60, 80), new THREE.MeshBasicMaterial({
+        var frame = new THREE.Mesh(new THREE.PlaneGeometry(120, 160), new THREE.MeshBasicMaterial({
           map: frameMap,
           transparent: true
         }));
-        frame.position.set(434, 170, 120);
+        frame.position.set(434.5, 170, 120);
         frame.rotation.y = -Math.PI / 2;
         scene.add(frame)
-        
+
         // frame ...
         let frameMap2 = loader.load('https://i.imgur.com/Je86MDa.png');
-        var frame2 = new THREE.Mesh(new THREE.PlaneGeometry(65, 90), new THREE.MeshBasicMaterial({
+        var frame2 = new THREE.Mesh(new THREE.PlaneGeometry(130, 180), new THREE.MeshBasicMaterial({
           map: frameMap2,
           transparent: true
         }));
@@ -165,27 +175,28 @@
         scene.add(frame2)
 
 
-
         //spotLight.position.set(150, 300, 120);
-        spotLight1.position.set(300, 300, 120);
+        spotLight1.position.set(200, 280, 120);
         spotLight1.target = painting1;
-        spotLight2.position.set(-600, 300, 120);
+        spotLight2.position.set(-700, 280, 120);
         spotLight2.target = painting2;
         var lamp = buildlamp();
         var lamp1 = lamp.clone();
         var lamp2 = lamp.clone();
-        lamp1.position.set(300, 300, 120);
+        lamp1.position.set(200, 280, 120);
         lamp1.position.copy(spotLight1.position);
         lamp1.lookAt(painting1.position);
-        lamp2.position.set(-600, 300, 120);
+        lamp2.position.set(-700, 280, 120);
         lamp2.position.copy(spotLight2.position);
         lamp2.lookAt(painting2.position);
-        scene.add(lamp1, spotLight1,lamp2, spotLight2);
+        scene.add(lamp1, spotLight1, lamp2, spotLight2);
 
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
         scene.add(directionalLight);
-
+        const light = new THREE.AmbientLight(0x404040); // soft white light
+        scene.add(light);
+				//var pointLight = new THREE.PointLight(0x0033ff, 3, 150);
 
         var chair = buildChair();
         var chair1 = chair.clone();
@@ -195,47 +206,14 @@
         chair2.rotation.y = Math.PI / 2;
         scene.add(chair1, chair2);
         
-        
-
-				renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x888888);
-        document.body.appendChild(renderer.domElement);
-				//eyeCamera.lookAt(300, 170, 0);
-        eyeCamera = new THREE.PerspectiveCamera(120, window.innerWidth / window.innerHeight, 1, 1000);
-        //let controls = new THREE.OrbitControls(eyeCamera, renderer.domElement);
-        eyeCamera.position.set(320, 170, 120);
-        //eyeCamera.position.set(50, 170, 120);
-        //eyeCamera.position.x = 50;
-        //eyeCamera.position.y = 170;
-        //eyeCamera.position.z = 120;
+        eyeCamera.position.set(0, 160, 120);
         eyeCamera.lookAt(painting1.position);
         
-        
-        eyeCamera2.position.set(-800, 170, 120);
+        eyeCamera2.position.set(-400, 160, 120);
         eyeCamera2.lookAt(painting2.position);
 
-        //////////////
-        // lighting
-        /*
-                const pointLight = new THREE.PointLight(0xffffff, 1);
-                pointLight.position.set(0, 400, 120);
-                scene.add(pointLight);
 
-                const sphereSize = 3;
-                const pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
-                scene.add(pointLightHelper);
-
-                spotLight = new THREE.SpotLight(0xffffff, 1, 250, Math.PI / 6, 0.974);
-                spotLight.position.set(150, 300, 120);
-                spotLight.target = drawing;
-                scene.add(spotLight);
-
-                spotLightHelper = new THREE.SpotLightHelper(spotLight);
-                scene.add(spotLightHelper);
-        */
       }
-
 
 
       function buildChair() {
@@ -262,25 +240,17 @@
         return lampGroup;
       }
 
-
-
       function animate() {
 
         requestAnimationFrame(animate);
         //renderer.render(scene, camera);
-        
-        if(eyecamera === true){
-        	renderer.render(scene, eyeCamera);
+        if (eyecamera === true) {
+          renderer.render(scene, eyeCamera);
+        } else {
+          renderer.render(scene, eyeCamera2);
         }
-        else{
-        	renderer.render(scene, eyeCamera2);
-        }
-        
-        //spotLightHelper.update();/////
 
       }
-      
-      
 
     </script>
 
