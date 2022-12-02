@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <style>
+      #container {
+        width: 60vw;
+        height: 60vw;
+        float: left;
+        background-color: pink;
+        margin: 10px;
+      }
+
+      p {
+        margin: 10px;
+        text-align: justify;
+      }
+
+    </style>
+  </head>
+
+
+  <body>
+
+    <h1 style="font-size:2em; text-align:center; margin:15px">
+      HW4
+    </h1>
+
+    <hr>
+
+    <div id="container">
+    </div>
+
+    <div style="width:30vw;float:left; margin:10px;background-color:yellow">
+      <button id='save'>Save</button><br>
+      <button id='clear'>Clear</button><br>
+      <button id='restore'>Restore</button>
+      <p id='debugMsg'>
+      </p>
+    </div>
+
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+    <script>
+      var scene, renderer, camera;
+      var plane, puck;
+      var mouse = new THREE.Vector2();
+      var raycaster = new THREE.Raycaster();
+      var pucks = [];
+      var puckId = 0;
+      init();
+      animate();
+
+      $('#save').click(function() {
+
+        // pucks --> puckRecs
+        var recs = [];
+        for (let i = 0; i < pucks.length; i++) {
+          var rec = {};
+          rec.name = pucks[i].name;
+          rec.x = pucks[i].position.x.toFixed(2);
+          rec.z = pucks[i].position.z.toFixed(2);
+          recs.push(rec);
+        }
+
+        // puckRecs --> JSON.stringify --> localStorage
+        var recLog = JSON.stringify(recs);
+        localStorage.setItem('puckLog', recLog);
+
+      });
+
+      $('#clear').click(function() {
+
+        pucks.forEach(function(puck) {
+          puck.removeFromParent();
+        })
+
+        pucks = [];
+      });
+
+      $('#restore').click(function() {
+
+        // localStorage --> JSON.parse --> puckRecs
+        var parseLog = JSON.parse(localStorage.getItem('puckLog'));
+        for (let i = 0; i < parseLog.length; i++) {
+          var newPuck = puck.clone();
+          newPuck.position.set(parseLog[i].x, 0, parseLog[i].z);
+          scene.add(newPuck);
+          pucks.push(newPuck);
+        }
+
+      });
+
+      function init() {
+
+        renderer = new THREE.WebGLRenderer({
+          antialias: true
+        });
+        var ww = $('#container').innerWidth();
+        var hh = $('#container').innerHeight();
+        renderer.setSize(ww, hh);
+        renderer.setClearColor(0x555555);
+        $('#container').append(renderer.domElement);
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, ww / hh, 1, 10000);
+        camera.position.set(0, 80, 200)
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(0, 150, 0);
+        scene.add(pointLight);
+
+        var cyl_geom = new THREE.CylinderGeometry(10, 10, 6, 32);
+        var cyl_mat = new THREE.MeshNormalMaterial();
+        //puck = new THREE.Mesh(cyl_geom, cyl_mat);//////////
+        puck = buildChair();
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        var gridXZ = new THREE.GridHelper(200, 20, 'red', 'white');
+        //scene.add(gridXZ);
+        var loader = new THREE.TextureLoader();
+        var floorGroup = new THREE.Group();
+        var grassMap = loader.load('https://i.imgur.com/6gW5ePG.jpg'); //https://i.imgur.com/ADGE9Ix.jpg
+        var grassAlpha = loader.load('https://i.imgur.com/iiQPDIT.jpg'); //https://i.imgur.com/mGdIosi.png?1
+        var grassFloor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({
+          map: grassMap,
+          transparent: true,
+          alphaMap: grassAlpha
+        }));
+
+        var stoneMap = loader.load('https://i.imgur.com/vYEKxzh.jpg'); //https://i.imgur.com/T1ZbCDb.jpg
+        var stoneAlpha = loader.load('https://i.imgur.com/rbJFlZh.jpg'); //https://i.imgur.com/D9alJjG.png
+        var stoneFloor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshBasicMaterial({
+          map: stoneMap,
+          transparent: true,
+          alphaMap: stoneAlpha
+        }));
+        floorGroup.add(grassFloor, stoneFloor);
+        scene.add(floorGroup);
+
+        floorGroup.rotation.x = -Math.PI / 2;
+
+
+        //table
+        var table = buildTable();
+        //table.positon.set(0,10,0);
+        scene.add(table);
+
+
+        // build an invisible plane, overlapping the grid
+        plane = new THREE.Mesh(
+          new THREE.PlaneGeometry(200, 200, 8, 8),
+          new THREE.MeshBasicMaterial({
+            //color: 0xff0000,
+            opacity: 0,
+            transparent: true
+          }));
+        plane.rotation.x = -Math.PI / 2;
+        plane.material.visible = true; // invisible, for picking only
+        scene.add(plane);
+
+        window.addEventListener('resize', onWindowResize, false);
+        $('#container').on("pointerdown", onDocumentMouseDown);
+        //window.addEventListener('mousemove', onDocumentMouseMove, false);
+      }
+
+      function onWindowResize() {
+        var ww = $('#container').innerWidth();
+        var hh = $('#container').innerHeight();
+        camera.aspect = ww / hh;
+        camera.updateProjectionMatrix();
+        renderer.setSize(ww, hh);
+      }
+
+      function onDocumentMouseDown(event) {
+
+        var viewportPos = $('#container').get(0).getBoundingClientRect();
+        mouse.x = ((event.clientX - viewportPos.left) / $('#container').innerWidth()) * 2 - 1;
+        mouse.y = -((event.clientY - viewportPos.top) / $('#container').innerHeight()) * 2 + 1;
+
+
+        raycaster.setFromCamera(mouse, camera);
+        var intersects = raycaster.intersectObject(plane);
+        if (intersects.length > 0) {
+          var newPuck = puck.clone();
+          newPuck.position.copy(intersects[0].point);
+
+          newPuck.name = 'puck' + puckId++;
+
+          scene.add(newPuck);
+          pucks.push(newPuck);
+        }
+
+      }
+
+      /*function buildChair() {
+        var group = new THREE.Group();
+        var woodTex = new THREE.TextureLoader().load("https://i.imgur.com/DrvlmNW.jpg?1");
+        var mat = new THREE.MeshLambertMaterial({
+          map: woodTex
+        });
+        var boxTop = new THREE.Mesh(new THREE.BoxGeometry(12, 2, 6), mat);
+        var boxLeg1 = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 6), mat);
+        var boxLeg2 = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 6), mat);
+        boxTop.position.set(0, 5, 0);
+        boxLeg1.position.set(-5, 3, 0);
+        boxLeg2.position.set(5, 3, 0);
+        group.add(boxTop, boxLeg1, boxLeg2);
+        return group;
+      }*/
+
+      function buildChair() {
+        var chairMap = new THREE.TextureLoader().load('https://i.imgur.com/FBdhJ06.jpg');
+        var chairmat = new THREE.MeshLambertMaterial({
+          map: chairMap
+        });
+        var geometry = new THREE.Mesh(new THREE.CylinderGeometry(7, 3, 16, 8), chairmat);
+        geometry.position.set(0, 16, 0);
+        return geometry;
+      }
+
+      function buildTable() {
+        var tablegroup = new THREE.Group();
+        var tableMap = new THREE.TextureLoader().load('https://i.imgur.com/FBdhJ06.jpg');
+        var tablemat = new THREE.MeshLambertMaterial({
+          map: tableMap
+        });
+        var tableTop = new THREE.Mesh(new THREE.CylinderGeometry(20, 20, 2, 32), tablemat);
+        var tablepillar = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 18, 32), tablemat);
+        var tableButton = new THREE.Mesh(new THREE.CylinderGeometry(10, 10, 2, 32), tablemat);
+        tableTop.position.set(0, 18, 0);
+        tablepillar.position.set(0, 8, 0);
+        tableButton.position.set(0, 0, 0);
+        tablegroup.add(tableTop, tablepillar, tableButton);
+        return tablegroup;
+
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        render();
+
+        $('#debugMsg').text(pucks.length + ' chairs on plane');
+
+      }
+
+      function render() {
+        renderer.render(scene, camera);
+      }
+
+    </script>
+  </body>
+
+</html>
